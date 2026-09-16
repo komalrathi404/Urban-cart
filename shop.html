@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Urban Cart — Shop quality electronics, fashion, home goods, beauty, books, and sports gear at honest prices, with fast checkout and easy returns.">
+<meta property="og:title" content="Urban Cart — Quality Products, Honest Prices">
+<meta property="og:description" content="Shop electronics, fashion, home goods, and more — all in one place.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+<title>Urban Cart | Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<script>
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const navLinks = document.getElementById("navLinks");
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener("click", function () {
+      navLinks.classList.toggle("show");
+    });
+  }
+
+  function initScrollReveal() {
+    const reveals = document.querySelectorAll(".reveal:not(.visible)");
+    const obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(function (el) { obs.observe(el); });
+  }
+  initScrollReveal();
+</script>
+<body>
+<a href="#mainContent" class="skip-link">Skip to main content</a>
+<nav id="navbar">
+  <div class="nav-logo">Urban <span>Cart</span></div>
+  <button id="hamburgerBtn" class="hamburger-btn" aria-label="Toggle menu">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="shop.html">Shop</a></li>
+    <li>
+      <a href="cart.html" class="cart-icon-wrap" aria-label="View shopping cart">
+  🛒
+  <span id="cartBadge" class="cart-badge">0</span>
+</a>
+    </li>
+  </ul>
+</nav>
+
+<header class="hero" style="min-height:35vh; padding-top:130px;">
+  <p class="eyebrow">Curated Picks, Unbeatable Value</p>
+  <h1>Find Something You'll Love</h1>
+</header>
+
+<main id="mainContent">
+  <div class="search-bar-wrap">
+    <input type="text" id="searchInput" placeholder="Search products, categories...">
+  </div>
+
+  <div class="filter-bar">
+    <select id="categoryFilter">
+      <option value="all">All Categories</option>
+      <option value="Electronics">Electronics</option>
+      <option value="Fashion">Fashion</option>
+      <option value="Home">Home</option>
+      <option value="Beauty">Beauty</option>
+      <option value="Books">Books</option>
+      <option value="Sports">Sports</option>
+    </select>
+
+    <select id="sortOption">
+      <option value="default">Sort By</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="rating-desc">Rating: High to Low</option>
+    </select>
+
+    <span id="resultCount" class="result-count"></span>
+  </div>
+
+  <div class="product-grid" id="shopGrid"></div>
+  <p id="emptyState" class="empty-state" style="display:none;">No products match your search. Try different keywords or filters.</p>
+</main>
+
+<footer><p>&copy; 2026 Urban Cart — Built for ApexPlanet Software Web Development Internship, Task 5</p></footer>
+
+<script src="products.js"></script>
+<script src="cart.js"></script>
+<script>
+  const categoryFilter = document.getElementById("categoryFilter");
+  const sortOption = document.getElementById("sortOption");
+  const searchInput = document.getElementById("searchInput");
+  const shopGrid = document.getElementById("shopGrid");
+  const emptyState = document.getElementById("emptyState");
+  const resultCount = document.getElementById("resultCount");
+
+  function renderShop() {
+    renderSkeletons(shopGrid, 6);
+    setTimeout(function () { renderShopResults(); }, 350);
+  }
+
+  function renderShopResults() {
+    let filtered = searchProducts(searchInput.value);
+
+    const category = categoryFilter.value;
+    if (category !== "all") {
+      filtered = filtered.filter(function (p) { return p.category === category; });
+    }
+
+    const sort = sortOption.value;
+    if (sort === "price-asc") filtered.sort(function (a, b) { return a.price - b.price; });
+    if (sort === "price-desc") filtered.sort(function (a, b) { return b.price - a.price; });
+    if (sort === "rating-desc") filtered.sort(function (a, b) { return b.rating - a.rating; });
+
+    shopGrid.innerHTML = "";
+    resultCount.textContent = filtered.length + " product" + (filtered.length !== 1 ? "s" : "");
+    emptyState.style.display = filtered.length === 0 ? "block" : "none";
+
+    filtered.forEach(function (p) {
+      shopGrid.insertAdjacentHTML("beforeend", renderProductCard(p));
+    });
+
+        attachAddToCartHandlers();
+    initScrollReveal();
+  }
+
+  searchInput.addEventListener("input", renderShop);
+  categoryFilter.addEventListener("change", renderShop);
+  sortOption.addEventListener("change", renderShop);
+  renderShop();
+</script>
+</body>
+</html>
