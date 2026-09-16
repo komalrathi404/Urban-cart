@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Urban Cart — Shop quality electronics, fashion, home goods, beauty, books, and sports gear at honest prices, with fast checkout and easy returns.">
+<meta property="og:title" content="Urban Cart — Quality Products, Honest Prices">
+<meta property="og:description" content="Shop electronics, fashion, home goods, and more — all in one place.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+<title>Checkout | Urban Cart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<script>
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const navLinks = document.getElementById("navLinks");
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener("click", function () {
+      navLinks.classList.toggle("show");
+    });
+  }
+
+  function initScrollReveal() {
+    const reveals = document.querySelectorAll(".reveal:not(.visible)");
+    const obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(function (el) { obs.observe(el); });
+  }
+  initScrollReveal();
+</script>
+<body>
+
+<a href="#mainContent" class="skip-link">Skip to main content</a>
+
+<nav id="navbar">
+  <div class="nav-logo">Urban <span>Cart</span></div>
+  <button id="hamburgerBtn" class="hamburger-btn" aria-label="Toggle menu">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="shop.html">Shop</a></li>
+    <li>
+      <a href="cart.html" class="cart-icon-wrap" aria-label="View shopping cart">
+  🛒
+  <span id="cartBadge" class="cart-badge">0</span>
+</a>
+    </li>
+  </ul>
+</nav>
+
+<header class="hero" style="min-height:30vh; padding-top:130px;">
+  <h1>Checkout</h1>
+</header>
+
+<main id="mainContent">
+  <div id="checkoutContent"></div>
+</main>
+
+<footer><p>&copy; 2026 Urban Cart — Built for ApexPlanet Software Web Development Internship, Task 5</p></footer>
+
+<script src="products.js"></script>
+<script src="cart.js"></script>
+<script>
+  const checkoutContent = document.getElementById("checkoutContent");
+  const cart = getCart();
+
+  if (cart.length === 0) {
+    checkoutContent.innerHTML =
+      '<div class="empty-cart">' +
+        '<p style="font-size:3rem;">🛒</p>' +
+        '<h3>Your cart is empty</h3>' +
+        '<p style="margin:10px 0 20px;">Add something before checking out.</p>' +
+        '<a href="shop.html" class="btn-primary">Continue Shopping</a>' +
+      '</div>';
+  } else {
+    let summaryHtml = '<div class="checkout-summary-list">';
+    cart.forEach(function (item) {
+      const product = getProductById(item.id);
+      if (!product) return;
+      summaryHtml +=
+        '<div class="checkout-line">' +
+          '<span>' + product.name + ' × ' + item.quantity + '</span>' +
+          '<span>₹' + (product.price * item.quantity) + '</span>' +
+        '</div>';
+    });
+    summaryHtml += '</div>';
+
+    const total = getCartTotal();
+
+    checkoutContent.innerHTML =
+      '<div class="checkout-wrap">' +
+        '<div class="card">' +
+          '<h2>Shipping Details</h2>' +
+          '<div class="divider"></div>' +
+          '<form id="checkoutForm" novalidate>' +
+            '<div class="form-group">' +
+              '<label for="fullName">Full Name</label>' +
+              '<input type="text" id="fullName" placeholder="Enter your full name">' +
+              '<span class="error" id="nameError"></span>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label for="checkoutEmail">Email Address</label>' +
+              '<input type="email" id="checkoutEmail" placeholder="you@example.com">' +
+              '<span class="error" id="emailErrorCheckout"></span>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label for="phone">Phone Number</label>' +
+              '<input type="tel" id="phone" placeholder="10-digit mobile number">' +
+              '<span class="error" id="phoneError"></span>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label for="address">Delivery Address</label>' +
+              '<textarea id="address" rows="3" placeholder="Full address with pincode"></textarea>' +
+              '<span class="error" id="addressError"></span>' +
+            '</div>' +
+            '<button type="submit" class="btn-primary" style="width:100%;">Place Order — ₹' + total + '</button>' +
+          '</form>' +
+        '</div>' +
+
+        '<div class="card">' +
+          '<h2>Order Summary</h2>' +
+          '<div class="divider"></div>' +
+          summaryHtml +
+          '<div class="checkout-line checkout-total">' +
+            '<span>Total</span>' +
+            '<span>₹' + total + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById("checkoutForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      let isValid = true;
+
+      document.getElementById("nameError").textContent = "";
+      document.getElementById("emailErrorCheckout").textContent = "";
+      document.getElementById("phoneError").textContent = "";
+      document.getElementById("addressError").textContent = "";
+
+      const name = document.getElementById("fullName").value.trim();
+      const email = document.getElementById("checkoutEmail").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const address = document.getElementById("address").value.trim();
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phonePattern = /^[0-9]{10}$/;
+
+      if (name === "") { document.getElementById("nameError").textContent = "Please enter your name."; isValid = false; }
+      if (!emailPattern.test(email)) { document.getElementById("emailErrorCheckout").textContent = "Please enter a valid email."; isValid = false; }
+      if (!phonePattern.test(phone)) { document.getElementById("phoneError").textContent = "Please enter a valid 10-digit number."; isValid = false; }
+      if (address === "") { document.getElementById("addressError").textContent = "Please enter your delivery address."; isValid = false; }
+
+      if (isValid) {
+        localStorage.removeItem("veenu_shop_cart");
+        window.location.href = "order-confirmation.html?name=" + encodeURIComponent(name);
+      }
+    });
+  }
+</script>
+</body>
+</html>
